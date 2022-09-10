@@ -6,12 +6,23 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error
 import numpy as np
+import git
 
 os.chdir(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
+# Route for the GitHub webhook
+
+@app.route('/git_update', methods=['POST'])
+def git_update():
+    repo = git.Repo('./Flask')
+    origin = repo.remotes.origin
+    repo.create_head('main',
+                     origin.refs.main).set_tracking_branch(origin.refs.main).checkout()
+    origin.pull()
+    return '', 200
 @app.route("/", methods=['GET'])
 def hello():
     return "Bienvenido a mi API del modelo advertising"
